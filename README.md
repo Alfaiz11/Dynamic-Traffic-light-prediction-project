@@ -1,7 +1,7 @@
 Dynamic traffic lighit prediction
 ==============================
 
-A short description of the project.
+This is a tool to detect Real-Time Traffic for Constant Traffic Flow (currently under development!)
 
 Project Organization
 ------------
