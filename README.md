@@ -1,4 +1,4 @@
-Dynamic traffic lighit prediction
+Dynamic traffic light prediction
 ==============================
 
 This is a tool to detect Real-Time Traffic for Constant Traffic Flow (currently under development!)
