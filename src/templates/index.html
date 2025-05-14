@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Traffic Signal Scheduling</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            max-width: 1600px;
+            margin: 0 auto;
+            gap: 15px;
+        }
+        .lane-container {
+            background-color: white;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 23%;
+            min-width: 220px;
+        }
+        .lane-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .lane-title {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .signal-status {
+            font-weight: bold;
+            padding: 3px 15px;
+            border-radius: 4px;
+            text-align: center;
+            min-width: 70px;
+        }
+        .red {
+            background-color: #ffcccc;
+            color: #cc0000;
+        }
+        .yellow {
+            background-color: #fff2cc;
+            color: #b88a00;
+        }
+        .green {
+            background-color: #d9ead3;
+            color: #38761d;
+        }
+        .timer {
+            font-weight: bold;
+            padding: 3px 10px;
+            border-radius: 4px;
+            min-width: 40px;
+            text-align: center;
+        }
+        .video-container {
+            position: relative;
+        }
+        .video-frame {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .vehicle-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 1200px) {
+            .container {
+                flex-wrap: wrap;
+            }
+            .lane-container {
+                width: 48%;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .lane-container {
+                width: 100%;
+            }
+        }
+    </style>
+    <script>
+        // Update signal status and timer information
+        function updateSignalInfo() {
+            fetch('/signal_status')
+                .then(response => response.json())
+                .then(data => {
+                    for (let i = 0; i < 4; i++) {
+                        const lane = i + 1;
+                        const statusElem = document.getElementById(`status-${lane}`);
+                        const timerElem = document.getElementById(`timer-${lane}`);
+                        const vehicleElem = document.getElementById(`vehicles-${lane}`);
+                        
+                        // Update status
+                        statusElem.textContent = data.signals[i];
+                        statusElem.className = 'signal-status ' + data.signals[i].toLowerCase();
+                        
+                        // Update timer
+                        if (data.signals[i] === 'GREEN') {
+                            timerElem.textContent = `${data.remaining}s`;
+                        } else if (data.signals[i] === 'RED') {
+                            timerElem.textContent = `${data.red_timers[i]}s`;
+                        } else {
+                            timerElem.textContent = `-`;
+                        }
+                        
+                        // Update vehicle count
+                        vehicleElem.textContent = `Vehicles: ${data.counts[i]}`;
+                    }
+                })
+                .catch(error => console.error('Error fetching signal status:', error));
+        }
+        
+        // Refresh every second
+        setInterval(updateSignalInfo, 1000);
+        
+        // Initial update when page loads
+        document.addEventListener('DOMContentLoaded', updateSignalInfo);
+    </script>
+</head>
+<body>
+    <h2>🚦 Dynamic Traffic Light Scheduling System</h2>
+    
+    <div class="container">
+        {% for i in range(4) %}
+        <div class="lane-container">
+            <div class="lane-header">
+                <div class="lane-title">Lane {{ i+1 }}</div>
+                <div id="status-{{ i+1 }}" class="signal-status">-</div>
+                <div id="timer-{{ i+1 }}" class="timer">-</div>
+            </div>
+            <div class="video-container">
+                <img class="video-frame" src="{{ url_for('video_feed', lane_id=i) }}">
+                <div id="vehicles-{{ i+1 }}" class="vehicle-count">Vehicles: -</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
